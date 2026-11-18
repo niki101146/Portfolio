@@ -61,8 +61,6 @@ STORAGES = {
 }
 if os.environ.get("CLOUDINARY_URL"):
     STORAGES["default"] = {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"}
-# django-cloudinary-storage still reads this removed setting during collectstatic; defining it avoids an AttributeError on Django 5.1+
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")  # Render terminates HTTPS
     SESSION_COOKIE_SECURE = True
