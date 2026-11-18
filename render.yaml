@@ -1,0 +1,35 @@
+# Render Blueprint: backend only (database is Neon). Frontend goes on Vercel (see DEPLOY.md).
+services:
+  - type: web
+    name: portfolio-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: bash build.sh
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL          # Neon direct connection string, ends with ?sslmode=require
+        sync: false
+      - key: CORS_ORIGINS            # your Vercel URL, no trailing slash
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS    # same Vercel URL plus your Render URL
+        sync: false
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: CLOUDINARY_URL          # optional but recommended: keeps uploaded images forever
+        sync: false
+      - key: RESEND_API_KEY          # contact-form emails (free plan blocks Gmail SMTP)
+        sync: false
+      - key: NOTIFY_EMAIL            # your inbox; must be the email you signed up to Resend with
+        sync: false
