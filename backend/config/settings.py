@@ -12,7 +12,9 @@ INSTALLED_APPS = [
     "rest_framework", "rest_framework.authtoken", "corsheaders", "api",
 ]
 if os.environ.get("CLOUDINARY_URL"):  # persistent image storage (see DEPLOY.md)
-    INSTALLED_APPS = ["cloudinary_storage"] + INSTALLED_APPS + ["cloudinary"]
+    # Listed AFTER django.contrib.staticfiles on purpose: otherwise cloudinary_storage replaces
+    # collectstatic and skips copying files, which breaks WhiteNoise.
+    INSTALLED_APPS = INSTALLED_APPS + ["cloudinary_storage", "cloudinary"]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
