@@ -40,6 +40,10 @@ class Message(models.Model):
 class Profile(models.Model):
     """Single row holding your portrait."""
     photo = models.ImageField(upload_to="profile/", blank=True, null=True)
+    # The resume PDF is kept in the database (not on disk), so it survives redeploys on Render's free plan.
+    resume_data = models.BinaryField(blank=True, null=True, editable=False)
+    resume_name = models.CharField(max_length=120, blank=True)
+    resume_updated = models.DateTimeField(blank=True, null=True)
     @classmethod
     def get(cls):
         return cls.objects.get_or_create(pk=1)[0]

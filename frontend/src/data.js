@@ -10,12 +10,13 @@ export const profile = {
 };
 export const fallback = {
   skills: [
+    ["Languages", "Python, Java (basic), C, C++"],
+    ["Backend", "Django, REST APIs"],
     ["Frontend", "HTML, CSS, JavaScript, Bootstrap, React"],
-    ["Backend", "Python, Django, C++, C"],
     ["Database", "PostgreSQL, MySQL, SQLite"],
-    ["Tools", "VS Code, Jupyter Notebook, PyCharm, GitHub"],
+    ["Tools", "VS Code, Jupyter Notebook, PyCharm, GitHub, Git"],
     ["AI tools", "Claude, Codex"],
-    ["Strengths", "Data handling, Teamwork, Time management, Adaptability"],
+    ["Strengths", "Teamwork, Time management, Adaptability"],
   ].flatMap(([group, list]) => list.split(", ").map((name) => ({ group, name }))),
   projects: [
     { id: 1, title: "Explore South", tag: "AI travel planner · Python Django",

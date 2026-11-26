@@ -1,21 +1,125 @@
-.dash{min-height:100vh;display:flex;flex-direction:column}
-.dash aside{background:var(--bg2);border-bottom:1px solid var(--line);padding:.8rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center}
-.dash aside nav{display:flex;gap:.4rem;overflow-x:auto;flex-basis:100%;order:3;padding-bottom:.2rem}
-.dash aside nav button{white-space:nowrap;font:inherit;background:none;color:var(--muted);border:1px solid var(--line);border-radius:2rem;padding:.45rem 1rem;cursor:pointer;min-height:40px}
-.dash aside nav button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-.dash aside a,.linklike{color:var(--accent2);font:inherit;background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
-.dash main{padding:1.25rem;display:grid;gap:1rem;align-content:start;max-width:56rem;width:100%}
-.dash h2{margin:0}.dbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
-.dform{display:grid;gap:.9rem}.dform.inline{grid-template-columns:1fr}
-.drow{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}.drow h3{margin:0}
-.dmuted{color:var(--muted);margin:0}.derr{color:#ff8d8d;margin:0}
-.btn.danger{border-color:#7a2a2a;color:#ff8d8d}
-.preview{max-width:100%;border-radius:.7rem;border:1px solid var(--line)}.preview.portrait{max-width:16rem;aspect-ratio:4/5;object-fit:cover}
-.thumbs{width:5rem;height:3.4rem;object-fit:cover;border-radius:.5rem}
-.chip button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1}
-.dlogin{min-height:100vh;display:grid;place-items:center;padding:1.25rem}.dlogin form{width:100%;max-width:24rem;display:grid;gap:1rem}
+/* ===== Dashboard (admin) =====
+   Uses the colour variables from styles.css (--bg, --bg2, --card, --line, --ink, --muted, --accent, --accent2). */
+
+/* ---------- Shell ---------- */
+.dash{min-height:100vh;display:flex;flex-direction:column;background:radial-gradient(60rem 28rem at 100% -8%,rgba(124,92,255,.14),transparent 62%),radial-gradient(40rem 24rem at -10% 110%,rgba(79,216,247,.07),transparent 60%),var(--bg)}
+.dash aside{background:rgba(17,17,42,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;position:sticky;top:0;z-index:30}
+.dbrand{display:flex;align-items:center;gap:.7rem;font-family:var(--display);font-size:1.15rem}
+.dbrand b{font-weight:800;letter-spacing:.01em}
+.lmark{display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:.8rem;background:linear-gradient(135deg,#7c5cff,#3b82f6);color:#fff;font:800 1rem var(--display);box-shadow:0 8px 22px rgba(124,92,255,.4)}
+.lmark.small{width:2.2rem;height:2.2rem;border-radius:.7rem;font-size:.85rem}
+.dash aside nav{display:flex;gap:.4rem;overflow-x:auto;flex-basis:100%;order:3;padding:.1rem 0 .2rem;scrollbar-width:none}
+.dash aside nav::-webkit-scrollbar{display:none}
+.dash aside nav button{display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;font:500 .95rem var(--body);background:transparent;color:var(--muted);border:1px solid transparent;border-radius:.7rem;padding:.55rem .9rem;cursor:pointer;min-height:40px;text-align:left;transition:background .15s,color .15s,border-color .15s}
+.dash aside nav button:hover{background:rgba(124,92,255,.1);color:var(--ink)}
+.dash aside nav button.on{background:linear-gradient(135deg,rgba(124,92,255,.28),rgba(59,130,246,.18));border-color:rgba(124,92,255,.55);color:#fff;font-weight:600}
+.dash aside nav button.on .ic{color:var(--accent2)}
+.ic{flex:none}
+.dfoot{display:flex;gap:.4rem 1rem;align-items:center;margin-left:auto}
+.dash .dfoot a,.dash .dfoot .linklike{display:inline-flex;align-items:center;gap:.45rem;color:var(--muted);font:500 .92rem var(--body);text-decoration:none;background:none;border:0;padding:.35rem .2rem;cursor:pointer}
+.dash .dfoot a:hover,.dash .dfoot .linklike:hover{color:var(--accent2)}
+.dash main{padding:1.25rem;display:grid;gap:1.1rem;align-content:start;width:100%;max-width:62rem}
+
+/* ---------- Page header ---------- */
+.phead{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.2rem}
+.phead h2{font-size:clamp(1.6rem,4vw,2.1rem);margin:0}
+.phead p{margin:.25rem 0 0;color:var(--muted);font-size:.95rem}
+.dsub{margin:.6rem 0 0;font-size:1.15rem}
+.dash h2{margin:0}
+
+/* ---------- Cards, rows ---------- */
+.dash .card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),var(--card);border:1px solid var(--line);border-radius:1rem;padding:1.25rem;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 30px rgba(0,0,0,.18)}
+.dash .card h3{margin:0 0 .35rem;font-size:1.05rem}
+.dash .card p{max-width:none}
+.dbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.drow{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap;transition:border-color .15s,transform .15s}
+.drow:hover{border-color:rgba(124,92,255,.6)}
+.drow>div:not(.dbar){flex:1 1 12rem;min-width:0}
+.drow h3{margin:0}
+.dmuted{color:var(--muted);margin:0}
+.derr{color:#ff9d9d;margin:0}
+.dash .derr:not(:empty){background:rgba(255,100,100,.1);border:1px solid rgba(255,100,100,.35);border-radius:.7rem;padding:.6rem .9rem}
+.thumbs{width:6rem;height:4rem;object-fit:cover;border-radius:.6rem;border:1px solid var(--line)}
+.preview{max-width:100%;border-radius:.8rem;border:1px solid var(--line)}
+.preview.portrait{max-width:14rem;aspect-ratio:4/5;object-fit:cover}
+
+/* ---------- Forms ---------- */
+.dform{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+.dform h3,.dform .dbar,.dform>button,.dform>p,.dform>.preview,.dform label:has(textarea),.dform label:has(input[type=file]){grid-column:1/-1}
+.dform.inline{grid-template-columns:1fr;align-items:end}
+.dash label{display:grid;gap:.4rem;font:600 .86rem var(--body);color:var(--muted);letter-spacing:.01em}
+.dash input,.dash textarea{font:400 1rem var(--body);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:.7rem;padding:.7rem .85rem;width:100%;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
+.dash input::placeholder,.dash textarea::placeholder{color:#6f729c}
+.dash input:focus,.dash textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px rgba(124,92,255,.2)}
+.dash input[type=file]{padding:.5rem;cursor:pointer;color:var(--muted)}
+.dash input[type=file]::file-selector-button{font:600 .9rem var(--body);color:#fff;background:linear-gradient(135deg,#7c5cff,#3b82f6);border:0;border-radius:.55rem;padding:.5rem .95rem;margin-right:.8rem;cursor:pointer}
+.dash input[type=file]:hover::file-selector-button{filter:brightness(1.1)}
+.dash input[type=number]{color-scheme:dark}
+.dash textarea{resize:vertical;min-height:5rem}
+
+/* ---------- Buttons ---------- */
+.dash .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.65rem 1.2rem;min-height:42px;border-radius:.7rem;font:600 .95rem var(--body);transition:transform .12s,border-color .15s,background .15s,box-shadow .15s}
+.dash .btn:hover{transform:translateY(-1px)}
+.dash .btn.primary{box-shadow:0 8px 22px rgba(124,92,255,.35)}
+.dash .btn.small{min-height:36px;padding:.4rem .9rem;font-size:.88rem}
+.btn.danger{border-color:rgba(255,120,120,.45);color:#ff9d9d;background:rgba(255,100,100,.06)}
+.btn.danger:hover{background:rgba(255,100,100,.16);border-color:#ff8d8d}
+.dash a{color:var(--accent2)}
+.linklike{color:var(--accent2);font:inherit;background:none;border:0;cursor:pointer;padding:0}
+
+/* ---------- Gallery grid ---------- */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(14.5rem,1fr));gap:1rem}
+.gcard{margin:0;background:var(--card);border:1px solid var(--line);border-radius:1rem;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,transform .15s,box-shadow .15s}
+.gcard:hover{border-color:rgba(124,92,255,.6);transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.gcard img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--bg2)}
+.gcard figcaption{padding:.85rem .95rem 1rem;display:grid;gap:.5rem;justify-items:start;flex:1;align-content:start}
+.gcard figcaption b{font:600 .95rem/1.35 var(--body)}
+.gcard .btn{margin-top:.2rem}
+
+/* ---------- Chips (skills etc.) ---------- */
+.dash .chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.35);border-radius:2rem;padding:.2rem .8rem;margin:0 .4rem .4rem 0;font-size:.88rem;color:var(--ink)}
+.dash .chip button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 .1rem}
+.dash .chip button:hover{color:#ff9d9d}
+
+/* ---------- Overview ---------- */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr));gap:.9rem}
+.stat{display:grid;justify-items:start;gap:.15rem;text-align:left;font:inherit;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:1rem;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+.stat:hover{border-color:rgba(124,92,255,.65);transform:translateY(-3px);box-shadow:0 14px 30px rgba(124,92,255,.18)}
+.stat b{font:800 2rem/1.1 var(--display);color:var(--ink)}
+.sico{display:grid;place-items:center;width:2.2rem;height:2.2rem;border-radius:.7rem;background:rgba(124,92,255,.18);color:var(--accent2);margin-bottom:.4rem}
+
+/* ---------- Messages ---------- */
+.msg{display:flex;gap:.9rem;align-items:flex-start}
+.msg>div{min-width:0;flex:1}
+.msg .btn{margin-top:.5rem}
+.avatar{flex:none;display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:50%;background:linear-gradient(135deg,#7c5cff,#3b82f6);color:#fff;font:700 1.05rem var(--display)}
+
+/* ---------- Login ---------- */
+.dlogin{min-height:100vh;display:grid;place-items:center;padding:1.25rem;background:radial-gradient(46rem 26rem at 50% -10%,rgba(124,92,255,.22),transparent 65%),var(--bg)}
+.dlogin form{width:100%;max-width:25rem;display:grid;gap:1rem;padding:2rem 1.75rem;border-radius:1.2rem;box-shadow:0 24px 60px rgba(0,0,0,.45)}
 .dlogin h1{font-size:2rem;margin:0}
-@media(min-width:48rem){
- .dash{flex-direction:row}.dash aside{flex-direction:column;align-items:stretch;width:14rem;border:0;border-right:1px solid var(--line);padding:1.5rem 1rem;position:sticky;top:0;height:100vh}
- .dash aside nav{flex-direction:column;order:0;flex-basis:auto}.dash aside nav button{border-radius:.6rem;text-align:left}
- .dash main{padding:2rem}.dform.inline{grid-template-columns:1fr 1fr auto;align-items:end}}
+.dlogin .lmark{width:3rem;height:3rem}
+.dlogin label{display:grid;gap:.4rem;font:600 .86rem var(--body);color:var(--muted)}
+.dlogin input{background:var(--bg);border:1.5px solid var(--line);border-radius:.7rem;padding:.75rem .9rem}
+.dlogin input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 4px rgba(124,92,255,.2)}
+.pw{position:relative;display:block}.pw input{width:100%;padding-right:3rem}
+.eye{position:absolute;right:.3rem;top:50%;transform:translateY(-50%);width:2.5rem;height:2.5rem;display:grid;place-items:center;background:none;border:0;border-radius:.5rem;color:var(--muted);cursor:pointer}
+.eye:hover,.eye:focus-visible{color:var(--accent2)}
+
+/* ---------- Wide screens: sidebar layout ---------- */
+@media(min-width:56rem){
+ .dash{flex-direction:row}
+ .dash aside{flex-direction:column;align-items:stretch;flex-wrap:nowrap;width:15.5rem;flex:none;border:0;border-right:1px solid var(--line);padding:1.4rem 1rem;height:100vh;gap:1.4rem}
+ .dash aside nav{flex-direction:column;order:0;flex-basis:auto;overflow:visible;gap:.3rem}
+ .dash aside nav button{padding:.7rem .9rem;border-radius:.8rem}
+ .dfoot{flex-direction:column;align-items:stretch;margin:auto 0 0;border-top:1px solid var(--line);padding-top:1rem;gap:.2rem}
+ .dash .dfoot a,.dash .dfoot .linklike{padding:.55rem .6rem;border-radius:.6rem}
+ .dash .dfoot a:hover,.dash .dfoot .linklike:hover{background:rgba(124,92,255,.1)}
+ .dash main{padding:2.2rem 2.4rem;gap:1.25rem}
+ .dform.inline{grid-template-columns:1fr 1fr auto}
+}
+@media(max-width:34rem){
+ .dash .btn{width:auto}
+ .dash main{padding:1rem}
+ .gal{grid-template-columns:repeat(auto-fill,minmax(11rem,1fr))}
+}

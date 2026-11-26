@@ -1,8 +1,11 @@
 import json
 import logging
+import re
 import urllib.request
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.http import Http404, HttpResponse
+from django.utils import timezone
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -23,12 +26,30 @@ def send_with_resend(subject, body, reply_to):
     )
     urllib.request.urlopen(req, timeout=10).read()
 
+MAX_RESUME = 5 * 1024 * 1024
+
+def resume_version(profile):
+    """Changes every time a new resume is uploaded, so browsers never show an old copy."""
+    return int(profile.resume_updated.timestamp()) if profile.resume_data and profile.resume_updated else None
+
 # ---- public ----
+@api_view(["GET"])
+def resume(request):
+    p = Profile.get()
+    if not p.resume_data:
+        raise Http404("No resume uploaded yet")
+    name = re.sub(r"[^A-Za-z0-9._ -]", "", p.resume_name or "") or "resume.pdf"
+    r = HttpResponse(bytes(p.resume_data), content_type="application/pdf")
+    r["Content-Disposition"] = f'{"attachment" if request.GET.get("download") else "inline"}; filename="{name}"'
+    r["Cache-Control"] = "public, max-age=300"
+    return r
+
 @api_view(["GET"])
 def portfolio(request):
     ctx = {"request": request}
     return Response({
         "photo": ProfileSerializer(Profile.get(), context=ctx).data["photo"],
+        "resume": resume_version(Profile.get()),  # None until a PDF is uploaded in the dashboard
         "skills": SkillSerializer(Skill.objects.all(), many=True).data,
         "projects": ProjectSerializer(Project.objects.all(), many=True, context=ctx).data,
         "education": EducationSerializer(Education.objects.all(), many=True).data,
@@ -80,3 +101,40 @@ class ProfileView(APIView):
         s.is_valid(raise_exception=True)
         s.save()
         return Response(s.data)
+
+
+class ResumeView(APIView):
+    """Dashboard: upload, replace or remove the resume PDF."""
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def info(self):
+        p = Profile.get()
+        has = bool(p.resume_data)
+        return {"has_resume": has, "name": p.resume_name if has else "", "updated": p.resume_updated if has else None,
+                "version": resume_version(p), "size": len(bytes(p.resume_data)) if has else 0}
+
+    def get(self, request):
+        return Response(self.info())
+
+    def post(self, request):
+        f = request.FILES.get("resume")
+        if not f:
+            return Response({"resume": ["Choose a PDF file first."]}, status=400)
+        if f.size > MAX_RESUME:
+            return Response({"resume": ["The PDF must be under 5 MB."]}, status=400)
+        data = f.read()
+        if not data.startswith(b"%PDF"):
+            return Response({"resume": ["This is not a PDF file. Please upload a .pdf resume."]}, status=400)
+        p = Profile.get()
+        p.resume_data, p.resume_name, p.resume_updated = data, f.name[:120], timezone.now()
+        p.save(update_fields=["resume_data", "resume_name", "resume_updated"])
+        return Response(self.info())
+
+    patch = post
+
+    def delete(self, request):
+        p = Profile.get()
+        p.resume_data, p.resume_name, p.resume_updated = None, "", None
+        p.save(update_fields=["resume_data", "resume_name", "resume_updated"])
+        return Response(status=204)

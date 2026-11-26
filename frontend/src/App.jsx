@@ -1,9 +1,18 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { profile, fallback, expertise, services, process, gallery as galleryFallback } from "./data.js";
 
 const Dashboard = lazy(() => import("./Dashboard.jsx"));
 const API = import.meta.env.VITE_API_URL || "/api";
+// Fallback used until you upload a resume in the dashboard (the file lives in frontend/public).
+const FALLBACK_RESUME = { view: "/Shoba Niki J.pdf", download: "/Shoba Niki J.pdf" };
+const ResumeCtx = createContext(FALLBACK_RESUME);
+const useResume = () => useContext(ResumeCtx);
+function resumeLinks(version) {
+  if (!version) return FALLBACK_RESUME;
+  const url = `${API}/resume/?v=${version}`;
+  return { view: url, download: `${url}&download=1` };
+}
 // Each entry is its own page, reached through the hash (for example #/projects).
 const links = [["", "Home"], ["about", "About"], ["projects", "Projects"], ["gallery", "Gallery"], ["education", "Education"], ["contact", "Contact"]];
 
@@ -11,7 +20,7 @@ function useContent() {
   const [data, setData] = useState({ ...fallback, gallery: galleryFallback });
   useEffect(() => {
     fetch(`${API}/portfolio/`).then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => setData((p) => ({ photo: d.photo, projects: d.projects?.length ? d.projects : p.projects,
+      .then((d) => setData((p) => ({ photo: d.photo, resume: d.resume, projects: d.projects?.length ? d.projects : p.projects,
         skills: d.skills?.length ? d.skills : p.skills, education: d.education?.length ? d.education : p.education,
         gallery: d.gallery?.length ? d.gallery : p.gallery }))).catch(() => {});
   }, []);
@@ -21,6 +30,7 @@ function useContent() {
 const Heading = ({ title, sub, top }) => (<div className="head">{top ? <h1 className="h2">{title}</h1> : <h2>{title}</h2>}{sub && <p>{sub}</p>}</div>);
 
 function Nav({ page }) {
+  const resume = useResume();
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const esc = (e) => e.key === "Escape" && setOpen(false);
@@ -35,6 +45,7 @@ function Nav({ page }) {
       </button>
       <nav id="site-nav" className={open ? "open" : ""}>
         {links.map(([id, l]) => <a key={id} href={`#/${id}`} className={page === id ? "active" : ""} aria-current={page === id ? "page" : undefined} onClick={() => setOpen(false)}>{l}</a>)}
+        <a className="btn small" href={resume.view} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>Resume</a>
         <a className="btn small" href="#/contact" onClick={() => setOpen(false)}>Hire me</a>
       </nav>
     </header>
@@ -52,6 +63,7 @@ function Photo({ src }) {
 }
 
 function Hero({ d }) {
+  const resume = useResume();
   const stats = [[d.projects.length, "Projects built"], [1, "Certification"], [2026, "Graduating"], [5, "Core technologies"]];
   return (
     <section className="hero wrap">
@@ -63,6 +75,7 @@ function Hero({ d }) {
         <div className="cta">
           <a className="btn primary" href="#/projects">View my work</a>
           <a className="btn" href="#/contact">Contact me</a>
+          <a className="btn" href={resume.download} download="Shoba_Niki_J_Resume.pdf">Download resume</a>
         </div>
       </div>
       <Photo src={d.photo} />
@@ -73,21 +86,8 @@ function Hero({ d }) {
   );
 }
 
-const groupIcon = { Frontend: "🎨", Backend: "⚙️", Database: "🗄️", Tools: "🛠️", "AI tools": "✨", Strengths: "💪" };
+const groupIcon = { Languages: "💻", Language: "💻", Frontend: "🎨", Backend: "⚙️", Database: "🗄️", Tools: "🛠️", "AI tools": "✨", Strengths: "💪" };
 const facts = [["BCA", "Graduating 2026"], ["Python Full Stack", "Certified"], ["Django + React", "Core stack"]];
-
-function Ring({ n, v }) {
-  const c = 2 * Math.PI * 36;
-  return (
-    <div className="ring" role="img" aria-label={`${n}: ${v} percent`}>
-      <svg viewBox="0 0 88 88" aria-hidden="true">
-        <circle cx="44" cy="44" r="36" className="rt" />
-        <circle cx="44" cy="44" r="36" className="rv" strokeDasharray={c} style={{ "--off": c * (1 - v / 100) }} />
-      </svg>
-      <span>{n}</span><b>{v}%</b>
-    </div>
-  );
-}
 
 function About({ skills }) {
   const groups = skills.reduce((a, s) => ((a[s.group] ||= []).push(s.name), a), {});
@@ -99,16 +99,23 @@ function About({ skills }) {
         <ul className="facts">{facts.map(([t, l]) => <li key={t}><b>{t}</b><span>{l}</span></li>)}</ul>
       </div>
       <h2 className="subhead">Skills and tools</h2>
-      <div className="skillgrid">
+      <div className="skillpanel">
         {Object.entries(groups).map(([g, n]) => (
-          <article className="card skill" key={g}>
+          <div className="skillrow" key={g}>
             <h3><i aria-hidden="true">{groupIcon[g] || "•"}</i>{g}</h3>
-            <p>{n.map((x) => <span className="chip" key={x}>{x}</span>)}</p>
-          </article>
+            <ul>{n.map((x) => <li key={x}>{x}</li>)}</ul>
+          </div>
         ))}
       </div>
       <h2 className="subhead">Expertise</h2>
-      <div className="rings">{expertise.map(([n, v]) => <Ring key={n} n={n} v={v} />)}</div>
+      <ul className="xbars">
+        {expertise.map(([n, v]) => (
+          <li key={n}>
+            <div><span>{n}</span><b>{v}%</b></div>
+            <i role="img" aria-label={`${n}: ${v} percent`} style={{ "--v": `${v}%` }} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -236,7 +243,7 @@ function Gallery({ gallery, initial }) {
 const Process = () => (
   <section className="wrap">
     <Heading title="How I work" />
-    <ol className="steps">
+    <ol className="flow">
       {process.map(([t, p], i) => <li key={t}><b>{i + 1}</b><h3>{t}</h3><p>{p}</p></li>)}
     </ol>
   </section>
@@ -260,10 +267,12 @@ function Icon({ n }) {
   if (n === "linkedin") return <svg {...p} fill="currentColor"><rect x="2" y="9" width="4" height="13" /><circle cx="4" cy="4.2" r="2.2" /><path d="M9 9h3.8v1.8h.1c.5-1 1.8-2.1 3.8-2.1 4 0 4.8 2.6 4.8 6V22h-4v-6.2c0-1.5 0-3.4-2.1-3.4s-2.4 1.6-2.4 3.3V22H9z" /></svg>;
   if (n === "whatsapp") return <svg {...p} fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2z" /><path fill="var(--card)" d="M16.5 14.4c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.6-.8-2.3-1.6-.6-.6-1-1.3-1.1-1.5-.1-.2 0-.3.1-.4l.4-.4.2-.4c.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 3.9 3.4 1.9.8 2.3.6 2.7.6.4 0 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3z" /></svg>;
   if (n === "phone") return <svg {...p} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z" /></svg>;
+  if (n === "file") return <svg {...p} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h8" /></svg>;
   return <svg {...p} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M2 7l10 6 10-6" /></svg>;
 }
 
 function Contact() {
+  const resume = useResume();
   const [state, setState] = useState("idle");
   const tel = profile.phone.replace(/\s/g, "");
   async function send(e) {
@@ -298,6 +307,7 @@ function Contact() {
             <li><a href={`https://wa.me/${tel.replace("+", "")}`} target="_blank" rel="noopener noreferrer"><Icon n="whatsapp" />WhatsApp chat</a></li>
             <li><a href={profile.github} target="_blank" rel="noopener noreferrer"><Icon n="github" />GitHub</a></li>
             <li><a href={profile.linkedin} target="_blank" rel="noopener noreferrer"><Icon n="linkedin" />LinkedIn</a></li>
+            <li><a href={resume.view} target="_blank" rel="noopener noreferrer"><Icon n="file" />Resume (PDF)</a></li>
           </ul>
         </div>
       </div>
@@ -338,7 +348,7 @@ export default function App() {
   try { arg = decodeURIComponent(rawArg || ""); } catch { arg = ""; }
   const current = links.some(([id]) => id === seg) ? seg : "";
   return (
-    <>
+    <ResumeCtx.Provider value={resumeLinks(d.resume)}>
       <Nav page={current} />
       <BottomNav page={current} />
       <main key={`${current}/${arg}`} className="page">
@@ -358,6 +368,6 @@ export default function App() {
           <a href={`mailto:${profile.email}`} aria-label="Email"><Icon n="mail" /></a>
         </span>
       </footer>
-    </>
+    </ResumeCtx.Provider>
   );
 }

@@ -13,6 +13,8 @@ router.register("manage/messages", views.MessageViewSet, basename="m-messages")
 urlpatterns = [
     path("portfolio/", views.portfolio),
     path("contact/", views.contact),
+    path("resume/", views.resume),
     path("auth/login/", obtain_auth_token),
     path("manage/profile/", views.ProfileView.as_view()),
+    path("manage/resume/", views.ResumeView.as_view()),
 ] + router.urls
